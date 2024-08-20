@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link
+        rel="stylesheet"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css"
+        integrity="sha384-nG7B+9o+X8QGqDbT6rMvvwZ13XLmBnd2HEF4cOfwZkC0gL7W8brfD0u5U7QZJ0V9"
+        crossorigin="anonymous"
+    />
+    <style>
+        body {
+            background-color: #e9ecef;
+            color: #212529;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            max-width: 600px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .sudoku-table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        .sudoku-table td {
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            text-align: center;
+        }
+        .sudoku-table td.thick-border-bottom {
+            border-bottom-width: 2px;
+            border-bottom-color: #495057;
+        }
+        .sudoku-table td.thick-border-right {
+            border-right-width: 2px;
+            border-right-color: #495057;
+        }
+        .sudoku-table td.thick-border-top {
+            border-top-width: 2px;
+            border-top-color: #495057;
+        }
+        .sudoku-table td.thick-border-left {
+            border-left-width: 2px;
+            border-left-color: #495057;
+        }
+        .sudoku-table td.thick-border-top-left {
+            border-top-width: 2px;
+            border-left-width: 2px;
+            border-top-color: #495057;
+            border-left-color: #495057;
+        }
+        .sudoku-table td.thick-border-bottom-right {
+            border-bottom-width: 2px;
+            border-right-width: 2px;
+            border-bottom-color: #495057;
+            border-right-color: #495057;
+        }
+        .sudoku-table input {
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            border: none;
+            font-size: 18px;
+            background-color: #ffffff;
+            color: #495057;
+        }
+        .sudoku-table input.readonly {
+            background-color: #e9ecef;
+            color: #495057;
+            cursor: not-allowed;
+        }
+        .btn-custom {
+            font-size: 16px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: background-color 0.3s, color 0.3s;
+            border: none;
+        }
+        .btn-primary-custom {
+            background-color: #007bff;
+            color: #ffffff;
+        }
+        .btn-primary-custom:hover {
+            background-color: #0056b3;
+        }
+        .btn-secondary-custom {
+            background-color: #6c757d;
+            color: #ffffff;
+        }
+        .btn-secondary-custom:hover {
+            background-color: #5a6268;
+        }
+        .alert-custom {
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 30px; 
+            position: relative;
+        }
+        .alert-custom .btn-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .alert-info-custom {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border-color: #bee5eb;
+        }
+        .alert-success-custom {
+            background-color: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+        .alert-danger-custom {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mb-1">Sudoku Solver</h1>
+        
+        {% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+                <div class="alert alert-custom alert-{{ messages[0][0] }}-custom alert-dismissible fade show" role="alert">
+                    {% for category, message in messages %}
+                        <strong>{{ message }}</strong>
+                    {% endfor %}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+
+        <form method="POST">
+            <div class="row justify-content-center">
+                <div class="col-12">
+                    <table class="sudoku-table">
+                        <tbody>
+                            {% for i in range(9) %}
+                            <tr>
+                                {% for j in range(9) %}
+                                <td class="{% if i % 3 == 2 and j != 8 %}thick-border-bottom{% endif %} {% if j % 3 == 2 and i != 8 %}thick-border-right{% endif %} {% if i == 0 %}thick-border-top{% endif %} {% if j == 0 %}thick-border-left{% endif %} {% if i % 3 == 0 and j % 3 == 0 %}thick-border-top-left{% endif %} {% if i % 3 == 2 and j % 3 == 2 %}thick-border-bottom-right{% endif %}">
+                                    <input type="number" name="cell{{ i }}{{ j }}" value="{{ board[i][j] if board and board[i][j] != 0 else '' }}" min="0" max="9" class="form-control {% if board and board[i][j] != 0 %}readonly{% endif %}" {% if board and board[i][j] != 0 %}readonly{% endif %}>
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <div class="text-center mt-4">
+                        <button type="submit" name="action" value="solve" class="btn btn-primary-custom btn-custom">Solve</button>
+                        <button type="submit" name="action" value="generate" class="btn btn-secondary-custom btn-custom">Generate New Board</button>
+                        <form method="POST">
+                            <div class="row justify-content-center mb-3">
+                                <div class="col-12 text-center">
+                                    <label for="difficulty" class="form-label">Select Difficulty</label>
+                                    <select id="difficulty" name="difficulty" class="form-select" style="width: auto; display: inline-block;">
+                                        <option value="20">Easy</option>
+                                        <option value="40" selected>Medium</option>
+                                        <option value="60">Hard</option>
+                                    </select>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha384-oP+RzdkD6qYwWe/4Rz5Ejc6tslzZK8hwKT6PxEJ4jF93Dkg7X+Z8ydPzUoI1b2G9" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz4fnFO5ABT6FRb+K93r9rPa+PSFehe61l8Krojl3Zo9tGT5UQO2Vf1u5T" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.min.js" integrity="sha384-pzjw8f+ua7Kw1TIqI1L+1AYZB3i5xO6TVtmJ8O4MQk/t1FSKjqG/SXGQYp4SpFM/" crossorigin="anonymous"></script>
+</body>
+</html>
