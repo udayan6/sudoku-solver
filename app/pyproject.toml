@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "sudoku-solver"
+version = "0.1.0"
+description = "A web-based sudoku application, allowing users to generate and work through puzzles, including a solve function utilising a backtracking algorithm. Built with Flask, Python and uses Bootstrap for styling."
+authors = ["Udayan Nayyar"]
+license = "MIT License"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12.5"
+Flask = "3.0.3"
+
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
